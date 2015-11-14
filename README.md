@@ -169,6 +169,24 @@ local options = {
 a recommented/standard distributed request. @see:
 > ${tundrawolf}/demo.lua
 
+## Tundrawolf.infra.requestdata
+```lua
+local Tundrawolf = require('tundrawolf');
+local requestdata = Tundrawolf.infra.requestdata;
+-- or
+-- local requestdata = require('tundrawolf.infra.requestdata');
+
+...
+local arguments = requestdata.parse()
+n4c:execute_task(taskId, arguments)
+```
+parse arguments of PEDT task from http request. @see
+> ${ngx_4c}/module/n4c_executor.lua
+
+## tundrawolf.dbg.* 
+these are debug interfaces, please require/load as filemodule, or install by luarocks. @see:
+> ${tundrawolf}/demo.lua
+
 # system route discoveries in tundrawolf
 in tundrawolf, you can register and discovery any system resources. for examples:
 ```lua
@@ -214,5 +232,8 @@ try these:
 
 # history
 ```text
+2015.11.14	v1.0.1 released.
+	- Tundrawolf.infra.requestdata interface published.
+	- to be compatible ngx_cc at proxy_pass_interface.
 2015.11.09	v1.0.0 released.
 ```

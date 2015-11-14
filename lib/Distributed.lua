@@ -430,5 +430,6 @@ return {
 	infra = mod_prefix and {
 		taskhelper = def,
 		httphelper = require(mod_prefix..'infra.httphelper'),
+		requestdata = require(mod_prefix..'infra.requestdata'),
 	} or nil,
 }

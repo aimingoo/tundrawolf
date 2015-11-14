@@ -38,7 +38,8 @@ local function ngxcc_transform(url, opt)
 	local uri2, host, port = ngxcc_transform2(url)
 	port = not port and "" or ((port=="" or port=="80") and "" or ":"..port)
 	if uri2 then
-		return uri2, setmetatable({vars = { cc_host = host, cc_port = port }}, {__index=opt})
+		-- be compatible ngx_cc, serverAddr as cc_host and ignore cc_port
+		return uri2, setmetatable({vars = { cc_host = host..port, cc_port = "" }}, {__index=opt})
 	end
 end
 
