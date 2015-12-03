@@ -1,47 +1,50 @@
-#tundrawolf
+# tundrawolf
+
 tundrawolf is implement of PEDT - Parallel Exchangeable Distribution Task specifications for nginx_lua.
 
 PEDT v1.1 specifications supported.
 
-###Table of Contents
-  * [install](#install)
-  * [configurations in nginx.conf](#configurations-in-nginxconf)
-  * [import and usage](#import-and-usage)
-    * [options](#options)
-    * [interfaces](#interfaces)
-      * [pedt:run](#pedtrun)
-      * [pedt:map](#pedtmap)
-      * [pedt:execute_task](#pedtexecute_task)
-      * [pedt:register_task](#pedtregister_task)
-      * [pedt:require](#pedtrequire)
-      * [pedt:upgrade](#pedtupgrade)
-  * [helpers](#helpers)
-    * [Tundrawolf.infra.taskhelper](#tundrawolfinfrataskhelper)
-    * [Tundrawolf.infra.httphelper](#tundrawolfinfrahttphelper)
-    * [Tundrawolf.infra.requestdata](#tundrawolfinfrarequestdata)
-    * [tundrawolf.dbg.*](#tundrawolfdbg)
-  * [system route discoveries in tundrawolf](#system-route-discoveries-in-tundrawolf)
-  * [testcase](#testcase)
-  * [history](#history)
+### Table of Contents
 
-#install
+* [install](#install)
+* [configurations in nginx.conf](#configurations-in-nginxconf)
+* [import and usage](#import-and-usage)
+  * [options](#options)
+  * [interfaces](#interfaces)
+* [helpers](#helpers)
+  * [Tundrawolf.infra.taskhelper](#tundrawolfinfrataskhelper)
+  * [Tundrawolf.infra.httphelper](#tundrawolfinfrahttphelper)
+  * [Tundrawolf.infra.requestdata](#tundrawolfinfrarequestdata)
+  * [tundrawolf.dbg.*](#tundrawolfdbg)
+* [system route discoveries in tundrawolf](#system-route-discoveries-in-tundrawolf)
+* [testcase](#testcase)
+* [history](#history)
+
+# install
+
 > git clone https://github.com/aimingoo/tundrawolf
 
 or
+
 > luarocks install tundrawolf
 
-#configurations in nginx.conf
+# configurations in nginx.conf
+
 First, append path to nginx.conf:
-```conf
+
+``` conf
 http {
 	lua_package_path '...;${YOUR_Tundrawolf_DIR}/?.lua;;';
 	...
 ```
+
 > note1: you can skip package_path setting when tundrawolf installed by luarocks
+> 
 > note2: @see $(Tundrawolf)/nginx/conf/nginx.conf
 
 And next, add proxy_pass_interface in locatoin part:
-```conf
+
+``` conf
 http {
 	...
 	server {
@@ -51,11 +54,14 @@ http {
 			## 	$(Tundrawolf)/nginx/conf/nginx.conf
 		}
 ```
+
 for custom distributed_request interface/location, please copy $(tundrawolf)/infra/httphelper.lua to your project, change it and update location in nginx.conf.
 
-#import and usage
+# import and usage
+
 Loading Tundrawolf into your source code:
-```lua
+
+``` lua
 -- require when installed by luarocks
 local Tundrawolf = require('tundrawolf');
 
@@ -72,8 +78,10 @@ pedt:run(..)
 ```
 
 ## options
+
 the full options schema:
-```lua
+
+``` lua
 options = {
 	distributed_request = function(arrResult) .. end, -- a http client implement
 	system_route = { .. }, -- any key/value pairs
@@ -88,61 +96,22 @@ options = {
 ```
 
 ## interfaces
+
 > for detail, @see ${tundrawolf}/infra/specifications/*
+> 
 > for Promise in lua, @see [https://github.com/aimingoo/Promise](https://github.com/aimingoo/Promise)
 
 all interfaces are promise supported except pedt.upgrade() and helpers.
 
-### pedt:run
-```lua
-function pedt:run(task, args)
-```
-run a task (taskId, function or taskObject) with args.
-
-### pedt:map
-```lua
-function pedt:map(distributionScope, taskId, args)
-```
-map taskId to distributionScope with args, and get result array.
-
-distributionScope will parse by pedt.require().
-
-### pedt:execute_task
-```lua
-function pedt:execute_task(taskId, args)
-```
-run a taskId with args. pedt.run(taskId) will call this.
-
-### pedt:register_task
-```lua
-function pedt:register_task(task)
-```
-run a task and return taskId.
-
-the "task" is a taskDef text or local taskObject.
-
-### pedt:require
-```lua
-function pedt:require(token)
-```
-require a resource by token. the token is distributionScope or system token, or other.
-
-this is n4c expanded interface, resource query interface emmbedded.
-
-### pedt:upgrade
-```lua
-function pedt:upgrade(newOptions)
-```
-upgrade current Tundrawolf/PEDT instance with newOptions. @see [options](#options)
-
-this is tundrawolf expanded interface.
+all implements is harpseal based, @see [https://github.com/aimingoo/harpseal#interfaces](https://github.com/aimingoo/harpseal#interfaces)
 
 # helpers
 
 some tool/helpers include in the package.
 
 ## Tundrawolf.infra.taskhelper
-```lua
+
+``` lua
 local Tundrawolf = require('tundrawolf');
 local def = Tundrawolf.infra.taskhelper;
 -- or
@@ -154,10 +123,12 @@ local taskDef = {
 	...
 }
 ```
+
 a taskDef define helper.
 
 ## Tundrawolf.infra.httphelper
-```lua
+
+``` lua
 local Tundrawolf = require('tundrawolf');
 local httphelper = Tundrawolf.infra.httphelper;
 -- or
@@ -168,11 +139,14 @@ local options = {
 	distributed_request = httphelper.distributed_request
 }
 ```
+
 a recommented/standard distributed request. @see:
+
 > ${tundrawolf}/demo.lua
 
 ## Tundrawolf.infra.requestdata
-```lua
+
+``` lua
 local Tundrawolf = require('tundrawolf');
 local requestdata = Tundrawolf.infra.requestdata;
 -- or
@@ -182,16 +156,22 @@ local requestdata = Tundrawolf.infra.requestdata;
 local arguments = requestdata.parse()
 n4c:execute_task(taskId, arguments)
 ```
+
 parse arguments of PEDT task from http request. @see
+
 > ${ngx_4c}/module/n4c_executor.lua
 
-## tundrawolf.dbg.* 
+## tundrawolf.dbg.*
+
 these are debug interfaces, please require/load as filemodule, or install by luarocks. @see:
+
 > ${tundrawolf}/demo.lua
 
 # system route discoveries in tundrawolf
+
 in tundrawolf, you can register and discovery any system resources. for examples:
-```lua
+
+``` lua
 -- got system route discoveries
 local Tundrawolf = require('tundrawolf')
 local pedt = Tundrawolf:new({})
@@ -210,15 +190,20 @@ end)
 -- usage
 local res = pedt:require("MY:RESOURCE_KEY") -- a_key
 ```
+
 all keys were cached always, so discoverer function call once  until you manual set invalid a_key:
-```lua
+
+``` lua
 pedt.upgrade({system_route = {[a_key] = false}})
 ```
+
 for more example, @see [aimingoo/ngx_4c project](https://github.com/aimingoo/ngx_4c).
 
 # testcase
+
 try these:
-```bash
+
+``` bash
 > # goto home directory
 > cd ~
 > git clone 'https://github.com/aimingoo/tundrawolf'
@@ -233,7 +218,10 @@ try these:
 ```
 
 # history
-```text
+
+``` text
+2015.12.03	v1.0.4 released.
+	- sync to Harpseal v1.0.4
 2015.11.14	v1.0.1 released.
 	- Tundrawolf.infra.requestdata interface published.
 	- to be compatible ngx_cc at proxy_pass_interface.
